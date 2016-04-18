@@ -414,61 +414,70 @@ public class Pharmacogenomique_UL extends JFrame {
 				noPatient = JOptionPane.showInputDialog("Quel est le num\u00E9ro du patient?");
 				province = JOptionPane.showInputDialog("Quel est la province de ce patient?");
 				indiceEff = JOptionPane.showInputDialog("Quel est l\'indice d\'\u00E9fficacit\u00E9 de ce patient?");
-				boolean valideNP = true;
-				boolean valideIE = true;
-				try {
-					int noPatientInt = Integer.parseInt(noPatient);
-					valideNP = noPatientInt >= 0 && noPatientInt <= 2147483647;
-				} catch (NumberFormatException e1) {
-					valideNP = false;
-				}
-				try {
-					double indiceEffDouble = Double.parseDouble(indiceEff);
-					valideIE = indiceEffDouble >= 0 && indiceEffDouble <= 2;
-				} catch (NumberFormatException e1) {
-					valideIE = false;
-				}
-				boolean valideP = false;
-				for (String s : provincePossible) {
-					if (s.equals(province)) {
-						valideP = true;
-					}
-				}
-				try {
-					ResultSet rsNoPatient = stmt.executeQuery("select NO_PATIENT from TP_2_PATIENT");
-					if (rsNoPatient.next()) {
-						ArrayList<String> noPatientString = new ArrayList<String>();
-						do {
-							noPatientString.add(rsNoPatient.getString(1));
-						} while (rsNoPatient.next());
-						for (String s : noPatientString) {
-							if (s.equals(noPatient)) {
-								valideNP = false; // permet de vérifier qu'il
-													// n'y a pas deux No_patient
-													// pareil
-							}
-						}
-
-					}
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				if (valideNP == false || valideIE == false || valideP == false) {
-					JOptionPane.showMessageDialog(null, "Les param\u00E8tre de la fonciton ne sont pas valide!");
-				} else {
+				if (noPatient != null && province != null && indiceEff != null) {
+					boolean valideNP = true;
+					boolean valideIE = true;
 					try {
-						stmt.executeUpdate(
-								"insert into TP_2_PATIENT(NO_PATIENT, PROVINCE_PAT, INDICE_EFFICACITE_METABO_PAT) values (\'"
-										+ noPatient + "\',\'" + province + "\',\'" + indiceEff + "\')");
-						stmt.executeUpdate(
-								"insert into TP_2_ETUDE_PATIENT(NO_PATIENT, NUM_PATIENT_ETUDE, NO_ETUDE) values (\'"
-										+ noPatient + "\',\'1111\',\'" + textEtude.getText() + "\')");
-						// On ajoute 1111 au num patient etude pour testé, car
-						// les num doivent etre not null
+						int noPatientInt = Integer.parseInt(noPatient);
+						valideNP = noPatientInt >= 0 && noPatientInt <= 2147483647;
+					} catch (NumberFormatException e1) {
+						valideNP = false;
+					}
+					try {
+						double indiceEffDouble = Double.parseDouble(indiceEff);
+						valideIE = indiceEffDouble >= 0 && indiceEffDouble <= 2;
+					} catch (NumberFormatException e1) {
+						valideIE = false;
+					}
+					boolean valideP = false;
+					for (String s : provincePossible) {
+						if (s.equals(province)) {
+							valideP = true;
+						}
+					}
+					try {
+						ResultSet rsNoPatient = stmt.executeQuery("select NO_PATIENT from TP_2_PATIENT");
+						if (rsNoPatient.next()) {
+							ArrayList<String> noPatientString = new ArrayList<String>();
+							do {
+								noPatientString.add(rsNoPatient.getString(1));
+							} while (rsNoPatient.next());
+							for (String s : noPatientString) {
+								if (s.equals(noPatient)) {
+									valideNP = false; // permet de vérifier
+														// qu'il
+														// n'y a pas deux
+														// No_patient
+														// pareil
+								}
+							}
+
+						}
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
-					JOptionPane.showMessageDialog(null, "Patient ajouté dans: \'" + textEtude.getText() + "\'");
+					if (valideNP == false || valideIE == false || valideP == false || noPatient.isEmpty()
+							|| province.isEmpty() || indiceEff.isEmpty() || noPatient == null || province == null
+							|| indiceEff == null) {
+						JOptionPane.showMessageDialog(null, "Les param\u00E8tre de la fonciton ne sont pas valide!");
+					} else {
+						try {
+							stmt.executeUpdate(
+									"insert into TP_2_PATIENT(NO_PATIENT, PROVINCE_PAT, INDICE_EFFICACITE_METABO_PAT) values (\'"
+											+ noPatient + "\',\'" + province + "\',\'" + indiceEff + "\')");
+							stmt.executeUpdate(
+									"insert into TP_2_ETUDE_PATIENT(NO_PATIENT, NUM_PATIENT_ETUDE, NO_ETUDE) values (\'"
+											+ noPatient + "\',\'1111\',\'" + textEtude.getText() + "\')");
+							// On ajoute 1111 au num patient etude pour testé,
+							// car
+							// les num doivent etre not null
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+						JOptionPane.showMessageDialog(null, "Patient ajouté dans: \'" + textEtude.getText() + "\'");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Les param\u00E8tre de la fonciton ne sont pas valide!");
 				}
 			}
 		});
